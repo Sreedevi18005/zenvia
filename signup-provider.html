@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Registration - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f4f6f8;
+            padding: var(--spacing-md);
+        }
+
+        .auth-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 600px;
+            border-top: 5px solid var(--secondary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="text-center mb-4" style="color: var(--primary-color);">Service Provider Registration</h2>
+            <p class="text-center mb-4 text-light">Join our network of verified professionals.</p>
+
+            <form id="providerForm" onsubmit="handleProviderSubmit(event)">
+                <h4 class="mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">Personal Details</h4>
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Full Name</label>
+                        <input type="text" placeholder="Start with Mr./Ms." required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Phone Number</label>
+                        <input type="tel" placeholder="+91" required>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Email Address</label>
+                    <input type="email" placeholder="example@work.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Address</label>
+                    <textarea placeholder="Enter your full address"
+                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);"
+                        rows="2" required></textarea>
+                </div>
+
+                <h4 class="mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">Professional Details</h4>
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Service Type</label>
+                        <select required>
+                            <option value="">Select Service</option>
+                            <option>Electrician</option>
+                            <option>Plumber</option>
+                            <option>Carpenter</option>
+                            <option>Painter</option>
+                            <option>Cleaning</option>
+                            <option>Gas Agency</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Years of Experience</label>
+                        <input type="number" placeholder="e.g. 5" min="1" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 24px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Aadhaar Number</label>
+                        <input type="text" placeholder="XXXX XXXX XXXX" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Education Qualification</label>
+                        <input type="text" placeholder="e.g. ITI Certified" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;">Submit
+                    Application</button>
+
+                <div class="text-center" style="font-size: 0.9rem;">
+                    <a href="signup.html" style="color: #666;">Back to User Sign Up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function handleProviderSubmit(event) {
+            event.preventDefault();
+            // Show alert as requested
+            alert("Enquiry will be done");
+            // Redirect to home or dashboard after alert
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

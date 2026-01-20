@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: var(--spacing-lg);
+        }
+
+        .sidebar-menu {
+            margin-top: var(--spacing-xl);
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: var(--spacing-sm) 0;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.2s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .dashboard-main {
+            padding: var(--spacing-lg);
+            background-color: #f4f6f8;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            margin-top: var(--spacing-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo" style="color: var(--white);">Zenvia Admin</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="active">Overview</a>
+                <a href="#">Manage Users</a>
+                <a href="#">Verify Listings</a>
+                <a href="#">Service Providers</a>
+                <a href="#">Analytics</a>
+                <a href="index.html"
+                    style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px;">Logout</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Dashboard Overview</h2>
+                <div class="flex items-center">
+                    <span style="margin-right: 12px;">Welcome, Admin</span>
+                    <div style="width: 32px; height: 32px; background: #ddd; border-radius: 50%;"></div>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="grid grid-4 mb-4">
+                <div class="stat-card">
+                    <h4 style="color: var(--text-light); font-size: 0.9rem;">Total Users</h4>
+                    <div style="font-size: 1.5rem; font-weight: 700;">1,240</div>
+                </div>
+                <div class="stat-card">
+                    <h4 style="color: var(--text-light); font-size: 0.9rem;">Pending Listings</h4>
+                    <div style="font-size: 1.5rem; font-weight: 700;">45</div>
+                </div>
+                <div class="stat-card">
+                    <h4 style="color: var(--text-light); font-size: 0.9rem;">Active Services</h4>
+                    <div style="font-size: 1.5rem; font-weight: 700;">128</div>
+                </div>
+                <div class="stat-card">
+                    <h4 style="color: var(--text-light); font-size: 0.9rem;">Revenue (This Month)</h4>
+                    <div style="font-size: 1.5rem; font-weight: 700;">₹ 4.5L</div>
+                </div>
+            </div>
+
+            <!-- Recent Requests Table -->
+            <h3>Listing Verification Requests</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Property ID</th>
+                            <th>Owner Name</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#PROP-001</td>
+                            <td>Rajesh Kumar</td>
+                            <td>3 BHK Villa</td>
+                            <td><span class="badge" style="background:#fff3cd; color:#856404;">Pending</span></td>
+                            <td>
+                                <button class="btn btn-primary"
+                                    style="padding: 4px 8px; font-size: 0.8rem;">Verify</button>
+                                <button class="btn btn-outline"
+                                    style="padding: 4px 8px; font-size: 0.8rem; border-color: #d32f2f; color: #d32f2f;">Reject</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#PROP-002</td>
+                            <td>Sneha Gupta</td>
+                            <td>2 BHK Flat</td>
+                            <td><span class="badge" style="background:#d4edda; color:#155724;">Approved</span></td>
+                            <td>
+                                <button class="btn btn-outline"
+                                    style="padding: 4px 8px; font-size: 0.8rem;">View</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#PROP-003</td>
+                            <td>Amit Shah</td>
+                            <td>Independent House</td>
+                            <td><span class="badge" style="background:#fff3cd; color:#856404;">Pending</span></td>
+                            <td>
+                                <button class="btn btn-primary"
+                                    style="padding: 4px 8px; font-size: 0.8rem;">Verify</button>
+                                <button class="btn btn-outline"
+                                    style="padding: 4px 8px; font-size: 0.8rem; border-color: #d32f2f; color: #d32f2f;">Reject</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
