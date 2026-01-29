@@ -1,0 +1,548 @@
+:root {
+    /* Color Palette - Light Aesthetic Mauve Theme */
+    --primary-color: #a28089;
+    /* Main Mauve Accent */
+    --secondary-color: #6d4a52;
+    /* Darker Mauve for contrast */
+    --accent-color: #fdf5f6;
+    /* Soft Blush / Background light */
+
+    --text-color: #2d2426;
+    /* Dark Slate for readability on light */
+    --text-muted: #8a6d74;
+    --text-dark: #1a1516;
+
+    --bg-color: #fdf5f6;
+    --card-bg: #ffffff;
+    /* Clean white cards */
+    --input-bg: #ffffff;
+    --border-color: #eadedf;
+
+    /* Spacing & Radius */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --spacing-md: 20px;
+
+    --font-body: 'Inter', sans-serif;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+ul {
+    list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+/* Layout Utilities */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.grid {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 768px) {
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.flex {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+/* Components */
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    font-weight: 600;
+    text-transform: capitalize;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-align: center;
+    border-radius: 2px;
+    /* Slight radius but mostly square */
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.btn-outline:hover {
+    background: var(--secondary-color);
+    color: var(--bg-color);
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Default image safety net for cards */
+.card img {
+    max-width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar */
+.main-header {
+    background-color: var(--bg-color) !important;
+    /* Force consistency */
+    height: 80px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Removed .header-transparent to stop visual jerking */
+
+.logo {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 32px;
+    width: 160px;
+    /* Locked width to prevent pushing links */
+    flex-shrink: 0;
+}
+
+.logo svg {
+    height: 32px;
+    width: 32px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+#nav-auth-links {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    width: 280px;
+    /* Locked width for total stability */
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.nav-links a,
+#nav-auth-links a {
+    color: var(--text-color) !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding: 8px 0;
+    opacity: 1;
+    transition: all 0.3s ease;
+    display: inline-block;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    text-decoration: none !important;
+}
+
+.nav-links a:hover,
+.nav-links a.active,
+#nav-auth-links a:hover,
+#nav-auth-links a.active {
+    color: var(--secondary-color) !important;
+}
+
+.nav-links a::after,
+#nav-auth-links a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after,
+#nav-auth-links a:hover::after,
+#nav-auth-links a.active::after {
+    width: 100%;
+}
+
+/* Hero Section */
+.hero-section {
+    padding-top: 80px;
+    /* Reduced since nav isn't absolute overlay by default */
+    padding-bottom: 80px;
+    background: var(--bg-color);
+    text-align: left;
+}
+
+/* On Home Page, if we want overlay, we handle it there */
+/* For now, let's keep it simple to stop jerking: 
+   If user wants "Home" to still be overlay, we will add '.header-transparent' to Home's header HTML 
+*/
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: 1px solid var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+    border-color: var(--secondary-color);
+}
+
+/* Page Spacer for non-home pages */
+.page-header-spacer {
+    padding-top: 120px;
+}
+
+.hero-section h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.hero-section p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.2rem;
+    }
+}
+
+.hero-section p {
+    font-size: 1.1rem;
+}
+
+
+/* Service Card specific */
+.service-card {
+    padding: 40px 24px;
+    border-radius: 18px;
+    transition: all 0.3s ease;
+}
+
+.service-card:hover {
+    background: #ffffff;
+    transform: translateY(-8px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
+}
+
+.service-card i {
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover i {
+    transform: scale(1.15);
+}
+
+
+/* Badge */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+}
+
+/* Utility / Misc */
+.text-center {
+    text-align: center;
+}
+
+.mb-1 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.mb-2 {
+    margin-bottom: var(--spacing-md);
+}
+
+.mb-4 {
+    margin-bottom: var(--spacing-xl);
+}
+
+.mt-4 {
+    margin-top: var(--spacing-xl);
+}
+
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        flex-direction: column;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+}
+
+/* Payment Modal Simulation */
+.payment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.payment-window {
+    background: #ffffff;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    color: #333;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.payment-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payment-body {
+    padding: 25px;
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.pay-btn {
+    width: 100%;
+    background: var(--secondary-color);
+    color: var(--primary-color);
+    border: none;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.pay-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.pay-cancel {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Property Filter Bars */
+.filter-bar {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: var(--radius-md);
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    border: 1px solid var(--border-color);
+}
+
+.filter-bar input,
+.filter-bar select {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    flex: 1;
+    font-weight: 500;
+}
+
+.filter-bar input::placeholder {
+    color: #999;
+}
+
+.filter-bar .btn {
+    padding: 10px 20px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

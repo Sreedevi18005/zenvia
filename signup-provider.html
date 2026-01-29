@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Registration - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Minimal & Aesthetic Inputs (High Contrast) */
+        input,
+        textarea,
+        select {
+            background: #ffffff !important;
+            border: 1px solid transparent !important;
+            color: #1a202c !important;
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #a0aec0;
+        }
+
+        label {
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        h2,
+        h4 {
+            color: var(--white) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" class="logo text-center mb-4"
+                style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#a28089" stroke-width="2" />
+                    <rect x="22" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="22" y="46" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="46" width="6" height="6" fill="#4a383d" />
+                </svg>
+                Zenvia
+            </a>
+            <h2 class="text-center mb-4" style="color: var(--white);">Partner Registration</h2>
+            <p class="text-center mb-4 text-light">Join our network of verified professionals.</p>
+
+            <form id="providerForm" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="signup">
+                <input type="hidden" name="role" value="provider">
+                <h4 class="mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">Personal Details</h4>
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Full Name</label>
+                        <input type="text" name="name" placeholder="Start with Mr./Ms." required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Phone Number</label>
+                        <input type="tel" name="phone" placeholder="+91" required>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Email Address</label>
+                    <input type="email" name="email" placeholder="example@work.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Address</label>
+                    <textarea name="address" placeholder="Enter your full address"
+                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);"
+                        rows="2" required></textarea>
+                </div>
+
+                <h4 class="mb-2" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">Professional Details</h4>
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Service Type</label>
+                        <select name="category" required>
+                            <option value="">Select Service</option>
+                            <option value="Electrician">Electrician</option>
+                            <option value="Plumber">Plumber</option>
+                            <option value="Carpenter">Carpenter</option>
+                            <option value="Painter">Painter</option>
+                            <option value="Cleaning">Cleaning</option>
+                            <option value="Gas Agency">Gas Agency</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Years of Experience</label>
+                        <input type="text" name="experience" placeholder="e.g. 5 Years" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Visiting Charge (₹)</label>
+                        <input type="number" name="rate" placeholder="e.g. 300" min="0" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Profile Photo</label>
+                        <input type="file" name="profile_image" accept="image/*" required
+                            style="padding: 8px; background: white;">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">About You (Bio)</label>
+                    <textarea name="bio" placeholder="Describe your services..." rows="3" required
+                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Password</label>
+                    <input type="password" name="password" placeholder="Create Password" required>
+                </div>
+
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-bottom: 16px;">Submit
+                    Application</button>
+
+                <div class="text-center" style="font-size: 0.9rem;">
+                    <a href="signup.html" style="color: var(--text-muted);">Back to User Sign Up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('providerForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('../backend/auth.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert("Application Submitted! Enquiry will be done.");
+                window.location.href = 'index.html';
+            } else {
+                alert(result.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

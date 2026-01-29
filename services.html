@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="js/auth_guard.js?v=1.1"></script>
+    <style>
+        .service-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            color: var(--text-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .filter-btn {
+            background: #ffffff;
+            color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: var(--accent-color);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="container flex justify-between items-center">
+            <a href="index.html" class="logo">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#a28089" stroke-width="2" />
+                    <rect x="22" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="22" y="46" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="46" width="6" height="6" fill="#4a383d" />
+                </svg>
+                Zenvia
+            </a>
+
+            <button class="mobile-menu-btn" style="color: var(--text-color);"
+                aria-label="Toggle navigation menu">☰</button>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="listings.html">Properties</a>
+                <a href="services.html" class="active">Services</a>
+                <a href="about.html">About Us</a>
+                <span id="nav-auth-links">
+                    <a href="login.html" id="navLoginBtn">Login</a>
+                </span>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="mb-4">Our Service Providers</h2>
+
+            <!-- Categorization -->
+            <div id="category-filters" class="mb-4">
+                <button class="filter-btn active" onclick="filterServices('all')">All</button>
+                <button class="filter-btn" onclick="filterServices('Electrician')">Electrician</button>
+                <button class="filter-btn" onclick="filterServices('Plumber')">Plumber</button>
+                <button class="filter-btn" onclick="filterServices('Cleaning')">Cleaning</button>
+                <button class="filter-btn" onclick="filterServices('Painter')">Painter</button>
+                <button class="filter-btn" onclick="filterServices('Carpenter')">Carpenter</button>
+            </div>
+
+            <div id="providers-grid" class="grid grid-3">
+                <!-- Dynamic Content -->
+                <p>Loading providers...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Provider Details Modal -->
+    <div id="providerModal" class="modal-overlay">
+        <div class="modal">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-content">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Custom Payment Modal -->
+    <div id="paymentModal" class="payment-overlay">
+        <div class="payment-window">
+            <div class="payment-header">
+                <span>Zenvia Secure Payment</span>
+                <span onclick="closePaymentModal()" style="cursor:pointer;">&times;</span>
+            </div>
+            <div class="payment-body">
+                <div class="payment-row">
+                    <span>Payable Amount:</span>
+                    <strong id="pay-amount-display">₹30</strong>
+                </div>
+                <div class="payment-row" style="color:#666; font-size:0.8rem;">
+                    <span>Payment Method:</span>
+                    <span>Test Credit Card</span>
+                </div>
+                <button class="pay-btn" onclick="processCustomPayment()">SIMULATE SUCCESSFUL PAYMENT</button>
+                <div class="pay-cancel" onclick="closePaymentModal()">Cancel and go back</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/scripts.js"></script>
+    <script>
+        let allProviders = [];
+        let currentUserId = null;
+        let selectedBookingData = null;
+
+
+
+        // Helper to render stars
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    stars += '<i class="fas fa-star" style="color:#f1c40f;"></i> ';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="fas fa-star-half-alt" style="color:#f1c40f;"></i> ';
+                } else {
+                    stars += '<i class="far fa-star" style="color:#f1c40f;"></i> ';
+                }
+            }
+            return stars;
+        }
+
+        async function fetchProviders() {
+            try {
+                const res = await fetch('../backend/fetch_providers.php');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    allProviders = data.data;
+                    renderProviders(allProviders);
+                } else {
+                    document.getElementById('providers-grid').innerHTML = '<p>No providers found.</p>';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderProviders(list) {
+            const grid = document.getElementById('providers-grid');
+            grid.innerHTML = '';
+            if (list.length === 0) {
+                grid.innerHTML = '<p>No service providers available in this category.</p>';
+                return;
+            }
+
+            list.forEach(p => {
+                const imagePath = p.profile_image ? `../backend/${p.profile_image}` : 'https://via.placeholder.com/150';
+                grid.innerHTML += `
+                    <div class="card service-card p-4" onclick="openProviderModal(${p.id})">
+                        <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
+                            <img src="${imagePath}" style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+                            <div>
+                                <h3 style="margin:0; color:var(--secondary-color);">${p.name}</h3>
+                                <span class="badge" style="background: var(--accent-color); color: var(--secondary-color); border: 1px solid var(--border-color);">${p.category}</span>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-muted); font-size:0.9rem; margin-bottom:10px;">${p.bio ? p.bio.substring(0, 60) + '...' : 'No bio available.'}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:var(--primary-color);">₹${p.rate}/hr</strong>
+                            <div style="font-size:0.9rem;">
+                                ${renderStars(p.avg_rating)}
+                                <span style="font-weight:bold; color:var(--text-dark); margin-left:5px;">${p.avg_rating}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-4" style="width:100%;" onclick="openProviderModal(${p.id})">View Details</button>
+                    </div>
+                `;
+            });
+        }
+
+        function filterServices(cat) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (event) event.target.classList.add('active');
+
+            if (cat === 'all') {
+                renderProviders(allProviders);
+            } else {
+                const filtered = allProviders.filter(p => p.category.toLowerCase() === cat.toLowerCase());
+                renderProviders(filtered);
+            }
+        }
+
+        // --- MODAL & BOOKING LOGIC ---
+        let currentProviderId = null;
+
+        async function openProviderModal(id) {
+            currentProviderId = id;
+            const modal = document.getElementById('providerModal');
+            const content = document.getElementById('modal-content');
+            modal.style.display = 'flex';
+            content.innerHTML = '<p>Loading details...</p>';
+
+            try {
+                const res = await fetch(`../backend/get_provider_details.php?id=${id}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const p = data.data;
+                    const imagePath = p.profile_image ? `../backend/${p.profile_image}` : 'https://via.placeholder.com/150';
+
+                    let reviewsHtml = '';
+                    if (p.reviews && p.reviews.length > 0) {
+                        p.reviews.forEach(r => {
+                            reviewsHtml += `
+                                <div style="background:var(--white); padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid var(--border-color);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                        <strong style="color:var(--text-dark);">${r.reviewer_name}</strong>
+                                        <div>${renderStars(r.rating)}</div>
+                                    </div>
+                                    <p style="margin:0; font-size:0.9rem; color:var(--text-muted); line-height:1.4;">${r.comment}</p>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        reviewsHtml = '<p>No reviews yet.</p>';
+                    }
+
+                    content.innerHTML = `
+                        <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
+                            <img src="${imagePath}" style="width:80px; height:80px; border-radius:50%; object-fit:cover;">
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <h2 style="margin:0; color:var(--primary-color); font-weight:700;">${p.name}</h2>
+                                    <div style="text-align:right;">
+                                        <div style="color:#f1c40f; font-size:1.1rem; filter: drop-shadow(0 0 1px rgba(0,0,0,0.1));">
+                                            ${renderStars(p.avg_rating)}
+                                        </div>
+                                        <div style="font-size:0.85rem; color:var(--text-dark); font-weight:600;">
+                                            ${p.avg_rating} <span style="color:#999; font-weight:normal;">(${p.review_count} reviews)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p style="margin:0; color:#666;">${p.category} • ${p.experience || '0'} Years Exp</p>
+                                <strong style="color:var(--primary-color);">₹${p.rate}/hr</strong>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom:20px;">
+                            <h4 style="margin-bottom:5px;">About</h4>
+                            <p style="color:#555;">${p.bio || 'No bio.'}</p>
+                        </div>
+
+                        <div style="margin-bottom:20px; background:#fafafa; padding:15px; border-radius:8px; border:1px solid #eee;">
+                            <h4 style="margin-bottom:10px;">Book Service</h4> 
+                            <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">Advance Payment: <strong>₹30</strong> (Included in visiting charge)</p>
+                            
+                            <form id="bookingForm" onsubmit="initiateBooking(event)">
+                                <div class="grid grid-2" style="gap:10px; margin-bottom:10px;">
+                                    <input type="date" id="b-date" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                                    <input type="tel" id="b-phone" placeholder="Phone Number" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                                </div>
+                                <textarea id="b-address" placeholder="Full Address" required rows="2" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; margin-bottom:10px;"></textarea>
+                                <button type="submit" class="btn btn-primary" style="width:100%;">Book Now</button>
+                            </form>
+                        </div>
+
+                        <div class="reviews-section">
+                            <h4 style="margin-bottom:10px;">Customer Reviews</h4>
+                            <div style="max-height:250px; overflow-y:auto; padding-right:10px; border:1px solid #eee; border-radius:8px; padding:10px; background:#fafafa;">
+                                ${reviewsHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function closeModal() {
+            document.getElementById('providerModal').style.display = 'none';
+        }
+
+        function initiateBooking(e) {
+            e.preventDefault();
+            const userId = window.userSession ? window.userSession.user_id : null;
+            if (!userId) {
+                alert("Please login to book a service.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUserId = userId;
+            const date = document.getElementById('b-date').value;
+            const phone = document.getElementById('b-phone').value;
+            const address = document.getElementById('b-address').value;
+
+            selectedBookingData = { date, phone, address };
+
+            // Show Custom Payment Modal
+            document.getElementById('pay-amount-display').innerText = "₹30";
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        async function processCustomPayment() {
+            const payBtn = event.target;
+            payBtn.innerText = "Processing...";
+            payBtn.disabled = true;
+
+            const paymentId = "pay_custom_" + Math.random().toString(36).substr(2, 9);
+            const { date, phone, address } = selectedBookingData;
+
+            await confirmBooking(paymentId, date, phone, address);
+            closePaymentModal();
+        }
+
+        async function confirmBooking(paymentId, date, phone, address) {
+            const formData = new FormData();
+            formData.append('provider_id', currentProviderId);
+            formData.append('date', date);
+            formData.append('phone', phone);
+            formData.append('address', address);
+            formData.append('payment_id', paymentId);
+
+            try {
+                const res = await fetch('../backend/book_service.php', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Booking Successful! Advance paid.');
+                    closeModal();
+                    window.location.href = 'customer-dashboard.html';
+                } else {
+                    alert('Booking Failed: ' + data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server Error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // checkSession is now handled by auth_guard.js
+            fetchProviders();
+        });
+
+        // Close modal on outside click
+        window.onclick = function (event) {
+            const modal = document.getElementById('providerModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>

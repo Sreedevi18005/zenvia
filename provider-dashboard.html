@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard - Zenvia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Badges/Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css?v=1.6">
+    <script src="js/auth_guard.js"></script>
+    <style>
+        /* :root inherited from styles.css */
+
+        /* REFACTOR: Robust Side-by-Side Layout (Fixed Sidebar) */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+            background-color: #f9f0f2;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 1. SIDEBAR: Fixed to left, full height */
+        /* This guarantees it never pushes content down */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            background: var(--secondary-color);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            z-index: 1000;
+            overflow-y: auto;
+            /* Scrollable if menu is long */
+        }
+
+        /* 2. MAIN CONTENT: Pushed right by sidebar width */
+        /* This guarantees it sits NEXT to sidebar, not below */
+        .main-content {
+            margin-left: 260px;
+            /* Exact width of sidebar */
+            padding: 40px;
+            min-height: 100vh;
+            background: #f9f0f2;
+            width: calc(100% - 260px);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Dashboard Layout Wrapper - not strictly needed with fixed sidebar but good for resets */
+        .dashboard-layout {
+            display: block;
+            /* Reset from grid/flex */
+        }
+
+        /* --- VISIBILITY & AESTHETIC FIXES --- */
+        .main-content h1,
+        .main-content h2,
+        .main-content h3,
+        .main-content h4,
+        .main-content h5,
+        .main-content h6 {
+            color: var(--primary-color) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                /* Hide off-screen */
+                transition: transform 0.3s ease;
+                z-index: 2000;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                /* Full width on mobile */
+                width: 100%;
+                padding: 20px;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+        }
+
+        /* --- TEXT/INPUT FIXES --- */
+        .main-content input,
+        .main-content textarea,
+        .main-content select {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #1a202c !important;
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .main-content label {
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Components (Nav) */
+        .nav-item {
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Components (Misc) */
+        .badge-count {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #888;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab-step {
+            display: none;
+        }
+
+        .tab-step.active {
+            display: block;
+        }
+
+        .profile-img-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #eee;
+        }
+
+        /* Mobile Toggle */
+        .mobile-toggle {
+            display: none;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <h2 style="padding: 0 25px; margin-bottom: 40px; display:flex; align-items:center; gap:10px;">
+                <svg width="30" height="30" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#ffffff" stroke-width="3" />
+                    <rect x="26" y="38" width="12" height="16" rx="2" fill="#ffffff" />
+                    <circle cx="32" cy="30" r="4" fill="#ffffff" />
+                    <path d="M32 34V42" stroke="#ffffff" stroke-width="3" />
+                    <path d="M32 36L22 42" stroke="#ffffff" stroke-width="3" />
+                    <rect x="18" y="42" width="4" height="10" rx="1" fill="#f1c40f" />
+                    <path d="M32 36L42 42" stroke="#ffffff" stroke-width="3" />
+                    <path d="M44 44L48 48" stroke="#3498db" stroke-width="3" />
+                </svg>
+                Zenvia <span style="font-size: 0.5em; opacity: 0.7;">PRO</span>
+            </h2>
+
+            <a href="#" class="nav-item active" onclick="switchSection('bookings')">
+                <span>View Bookings</span>
+                <span id="bookingBadge" class="badge-count" style="display:none;">0</span>
+            </a>
+            <a href="#" class="nav-item" onclick="switchSection('profile')">My Profile</a>
+            <a href="../backend/logout.php" class="nav-item"
+                style="margin-top:auto; color:#ffffff; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <span>Logout</span>
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </aside>
+
+        <main class="main-content">
+            <!-- Bookings Section -->
+            <div id="section-bookings">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>
+                    <h2 style="margin:0;">My Bookings</h2>
+                </div>
+
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('pending', this)">Pending Request</div>
+                        <div class="tab" onclick="switchTab('accepted', this)">Upcoming (Accepted)</div>
+                        <div class="tab" onclick="switchTab('history', this)">History</div>
+                    </div>
+
+                    <div id="tab-pending" class="tab-step active">
+                        <div id="pending-list">Loading...</div>
+                    </div>
+
+                    <div id="tab-accepted" class="tab-step">
+                        <div id="accepted-list">Loading...</div>
+                    </div>
+
+                    <div id="tab-history" class="tab-step">
+                        <div id="history-list">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="section-profile" style="display:none;">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>
+                    <h2 style="margin:0;">My Profile</h2>
+                </div>
+                <div class="card" id="profile-view">
+                    <div class="profile-card-content" style="display: flex; gap: 24px; align-items: start;">
+                        <img id="p-image" src="https://via.placeholder.com/100" class="profile-img-large">
+                        <div style="flex:1;">
+                            <h3 id="p-name">Loading...</h3>
+                            <p id="p-category" style="color: #666; font-weight: bold;">...</p>
+                            <p><strong>Experience:</strong> <span id="p-exp">...</span></p>
+                            <p><strong>Address:</strong> <span id="p-addr">...</span></p>
+                            <p><strong>Bio:</strong> <span id="p-bio">...</span></p>
+
+                            <hr>
+                            <div style="display: flex; gap: 20px;">
+                                <div>
+                                    <h1 id="p-rating">0.0</h1>
+                                    <small>Average Rating</small>
+                                </div>
+                                <div>
+                                    <h1 id="p-reviews-count">0</h1>
+                                    <small>Total Reviews</small>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-secondary mt-4" onclick="toggleEditInfo()">Edit Personal
+                                Details</button>
+                        </div>
+                    </div>
+
+                    <h3 class="mt-4">Customer Reviews</h3>
+                    <div id="reviews-list"
+                        style="max-height: 300px; overflow-y: auto; padding-right: 10px; border: 1px solid #eee; border-radius: 8px; padding: 10px; background: #fafafa;">
+                    </div>
+                </div>
+
+                <!-- Invoice Modal -->
+                <div id="invoice-modal" class="card"
+                    style="display:none; border:2px solid var(--secondary-color); background:#fdfdfd;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0; color:var(--primary-color);">Invoice Details</h3>
+                        <button onclick="toggleInvoice(null)"
+                            style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+                    </div>
+                    <div id="invoice-content">Loading...</div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="card" id="profile-edit" style="display:none;">
+                    <h3>Edit Details</h3>
+                    <form id="editProfileForm">
+                        <input type="hidden" name="action" value="update_profile">
+                        <div class="grid grid-2" style="gap:16px;">
+                            <div>
+                                <label>Email</label>
+                                <input type="email" name="email" id="e-email" required>
+                            </div>
+                            <div>
+                                <label>Phone</label>
+                                <input type="text" name="phone" id="e-phone" required>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label>Address</label>
+                            <input type="text" name="address" id="e-addr" required>
+                        </div>
+                        <div class="mt-2">
+                            <label>Experience</label>
+                            <input type="text" name="experience" id="e-exp" required>
+                        </div>
+                        <div class="mt-2">
+                            <label>Bio</label>
+                            <textarea name="bio" id="e-bio" rows="3"></textarea>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" onclick="toggleEditInfo()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function switchSection(sec) {
+            document.getElementById('section-bookings').style.display = (sec === 'bookings') ? 'block' : 'none';
+            document.getElementById('section-profile').style.display = (sec === 'profile') ? 'block' : 'none';
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (sec === 'bookings') document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            if (sec === 'profile') document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+        }
+
+        function switchTab(type, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.tab-step').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+        }
+
+        // --- BOOKINGS LOGIC ---
+        async function loadBookings() {
+            try {
+                const response = await fetch('../backend/provider_bookings.php');
+                const data = await response.json();
+                if (data.status === 'error') return; // Auth Guard handles redirect
+
+                const pendingDiv = document.getElementById('pending-list');
+                const acceptedDiv = document.getElementById('accepted-list');
+                const historyDiv = document.getElementById('history-list');
+                const badge = document.getElementById('bookingBadge');
+
+                pendingDiv.innerHTML = '';
+                acceptedDiv.innerHTML = '';
+                historyDiv.innerHTML = '';
+
+                let pendingCount = 0;
+
+                data.bookings.forEach(b => {
+                    const date = new Date(b.booking_date).toLocaleDateString();
+                    const card = `
+                        <div style="border-bottom:1px solid #eee; padding: 15px 0; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h4 style="margin:0;">Job ID: #${b.id}</h4>
+                                <p style="margin:5px 0; color:#666;">Customer: ${b.user_name} <br> ${b.user_address}</p>
+                                <small>Date: ${date}</small>
+                            </div>
+                            <div style="text-align:right;">
+                                ${getActionButtons(b)}
+                            </div>
+                        </div>
+                    `;
+
+                    if (b.status === 'pending') {
+                        pendingDiv.innerHTML += card;
+                        pendingCount++;
+                    } else if (b.status === 'accepted') {
+                        acceptedDiv.innerHTML += card;
+                    } else {
+                        historyDiv.innerHTML += card;
+                    }
+                });
+
+                if (pendingDiv.innerHTML === '') pendingDiv.innerHTML = '<p>No pending requests.</p>';
+                if (acceptedDiv.innerHTML === '') acceptedDiv.innerHTML = '<p>No upcoming jobs.</p>';
+                if (historyDiv.innerHTML === '') historyDiv.innerHTML = '<p>No history.</p>';
+
+                // Badge
+                if (pendingCount > 0) {
+                    badge.innerText = pendingCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+            } catch (err) { console.error(err); }
+        }
+
+        function getActionButtons(b) {
+            if (b.status === 'pending') {
+                return `
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="updateStatus(${b.id}, 'accepted')">Accept</button>
+                    <button class="btn btn-secondary" style="background:#e74c3c; padding: 5px 10px; font-size: 0.8rem;" onclick="updateStatus(${b.id}, 'rejected')">Reject</button>
+                `;
+            } else if (b.status === 'accepted') {
+                return `<button class="btn btn-primary" onclick="updateStatus(${b.id}, 'completed')">Mark Completed</button>`;
+            } else if (b.status === 'completed') {
+                // Calculate earnings: Total Amount - 30
+                const earned = (parseFloat(b.total_amount) || 0) - 30;
+                return `<span style="color: #27ae60; font-weight: bold;">Earned: ₹ ${earned.toLocaleString()}</span>`;
+            } else {
+                return `<span class="badge" style="background:${b.status == 'completed' ? '#27ae60' : '#95a5a6'}">${b.status.toUpperCase()}</span>`;
+            }
+        }
+
+        async function updateStatus(id, status) {
+            let confirmMsg = `Are you sure you want to ${status} this booking?`;
+            if (status === 'rejected') confirmMsg += " This will refund the advance amount to the user.";
+
+            if (!confirm(confirmMsg)) return;
+            const fd = new FormData();
+            fd.append('action', 'update_status');
+            fd.append('booking_id', id);
+            fd.append('status', status);
+
+            const res = await fetch('../backend/provider_actions.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.status === 'success') {
+                loadBookings();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function toggleInvoice(id) {
+            const modal = document.getElementById('invoice-modal');
+
+            // If clicking same invoice or closing
+            if (!id || (currentInvoiceId === id && modal.style.display === 'block')) {
+                modal.style.display = 'none';
+                currentInvoiceId = null;
+                return;
+            }
+
+            currentInvoiceId = id;
+            modal.style.display = 'block';
+            document.getElementById('invoice-content').innerHTML = 'Loading invoice data...';
+
+            const fd = new FormData();
+            fd.append('action', 'get_invoice');
+            fd.append('booking_id', id);
+
+            try {
+                const res = await fetch('../backend/provider_actions.php', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const inv = data.data;
+                    document.getElementById('invoice-content').innerHTML = `
+                        <p><strong>Bill To:</strong> ${inv.customer}</p>
+                        <p><strong>Date:</strong> ${new Date(inv.date).toLocaleDateString()}</p>
+                        <hr style="margin:15px 0; border-color:#eee;">
+                        
+                        <h4 style="margin:0 0 15px 0; color:#555; text-align:center;">PAYMENT SLIP</h4>
+                        
+                        <div style="background:#f8f9fa; padding:20px; border-radius:8px; border:1px dashed #ccc; text-align:center;">
+                            <h2 style="margin:0; color:var(--primary-color);">Amount Earned</h2>
+                            <h1 style="font-size:2.5rem; margin:10px 0; color:#27ae60;">₹ ${(parseInt(inv.total) - 30).toLocaleString()}</h1>
+                            <p style="margin:0; color:#666;">Rate: ₹ ${parseInt(inv.total).toLocaleString()}</p>
+                            <small style="display:block; margin-top:5px; color:#999;">(Deduction: ₹ 30 platform fee)</small>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('invoice-content').innerText = 'Failed to load invoice.';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        // --- PROFILE LOGIC ---
+        async function loadProfile() {
+            const res = await fetch('../backend/get_profile.php');
+            const data = await res.json();
+            if (data.status === 'success') {
+                const u = data.data;
+                document.getElementById('p-name').innerText = u.name;
+                document.getElementById('p-category').innerText = u.category || 'Service Provider';
+                document.getElementById('p-exp').innerText = u.experience || 'N/A';
+                document.getElementById('p-addr').innerText = u.address;
+                document.getElementById('p-bio').innerText = u.bio || 'No bio added.';
+                document.getElementById('p-rating').innerText = u.average_rating || '0.0';
+                document.getElementById('p-reviews-count').innerText = u.total_reviews || '0';
+
+                if (u.profile_image) {
+                    // Correct path relative to html
+                    document.getElementById('p-image').src = '../backend/' + u.profile_image;
+                }
+
+                // Fill Edit Form
+                document.getElementById('e-email').value = u.email;
+                document.getElementById('e-phone').value = u.phone;
+                document.getElementById('e-addr').value = u.address;
+                document.getElementById('e-exp').value = u.experience || '';
+                document.getElementById('e-bio').value = u.bio || '';
+
+                // Load Reviews
+                const rDiv = document.getElementById('reviews-list');
+                rDiv.innerHTML = '';
+                if (u.reviews && u.reviews.length > 0) {
+                    u.reviews.forEach(r => {
+                        rDiv.innerHTML += `
+                            <div style="background:var(--white); padding:15px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <strong style="color:var(--text-dark);"> ${r.reviewer_name}</strong>
+                                    <div style="font-size:0.85rem;">${renderStars(r.rating)}</div>
+                                </div>
+                                <p style="margin:0; font-size:0.9rem; color:var(--text-muted); line-height:1.4;">${r.comment}</p>
+                                <div style="margin-top:8px; font-size:0.75rem; color:#999;">${new Date(r.created_at).toLocaleDateString()}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    rDiv.innerHTML = '<p>No reviews yet.</p>';
+                }
+            }
+        }
+
+        function toggleEditInfo() {
+            const view = document.getElementById('profile-view');
+            const edit = document.getElementById('profile-edit');
+            if (view.style.display === 'none') {
+                view.style.display = 'block';
+                edit.style.display = 'none';
+            } else {
+                view.style.display = 'none';
+                edit.style.display = 'block';
+            }
+        }
+
+        document.getElementById('editProfileForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const fd = new FormData(this);
+            const res = await fetch('../backend/provider_actions.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (data.status === 'success') {
+                alert('Profile Updated');
+                loadProfile();
+                toggleEditInfo();
+            } else {
+                alert(data.message);
+            }
+        });
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            const sb = document.querySelector('.sidebar');
+            const tg = document.querySelectorAll('.mobile-toggle');
+            let clickedToggle = false;
+            tg.forEach(t => { if (t.contains(e.target)) clickedToggle = true; });
+
+            if (window.innerWidth <= 768 && !sb.contains(e.target) && !clickedToggle && sb.classList.contains('active')) {
+                sb.classList.remove('active');
+            }
+        });
+
+        // Helper to render stars
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    stars += '<i class="fas fa-star" style="color:#f1c40f;"></i> ';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="fas fa-star-half-alt" style="color:#f1c40f;"></i> ';
+                } else {
+                    stars += '<i class="far fa-star" style="color:#f1c40f;"></i> ';
+                }
+            }
+            return stars;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBookings();
+            loadProfile();
+        });
+    </script>
+</body>
+
+</html>

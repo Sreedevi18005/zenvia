@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/auth_guard.js"></script>
+    <style>
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 32px;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            min-height: 80vh;
+        }
+
+        .user-details-sidebar {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+            color: var(--text-color);
+        }
+
+        .user-details-sidebar h3 {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-info-row {
+            margin-bottom: 15px;
+        }
+
+        .user-info-row strong {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-bottom: 4px;
+        }
+
+        /* Interactive Stars */
+        .star-rating i {
+            font-size: 1.2rem;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.1s ease, transform 0.1s ease;
+            margin-right: 2px;
+        }
+
+        .star-rating i.fas {
+            color: #f1c40f !important;
+        }
+
+        .star-rating i:hover {
+            transform: scale(1.2);
+        }
+
+        .dashboard-section {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section h2 {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .list-item {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="container flex justify-between items-center">
+            <a href="index.html" class="logo">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#a28089" stroke-width="2" />
+                    <rect x="22" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="22" y="46" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="46" width="6" height="6" fill="#4a383d" />
+                </svg>
+                Zenvia
+            </a>
+
+            <button class="mobile-menu-btn" style="color: var(--text-color);"
+                aria-label="Toggle navigation menu">☰</button>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="listings.html">Properties</a>
+                <a href="services.html">Services</a>
+                <a href="about.html">About Us</a>
+                <span id="nav-auth-links">
+                    <a href="login.html" id="navLoginBtn">Login</a>
+                </span>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container dashboard-container">
+
+        <!-- SIDEBAR: User Details -->
+        <aside class="user-details-sidebar">
+            <h3>My Profile</h3>
+            <div class="user-info-row">
+                <strong>Name</strong>
+                <span id="userName">...</span>
+            </div>
+            <div class="user-info-row">
+                <strong>Phone Number</strong>
+                <span id="userPhone">...</span>
+            </div>
+            <div class="user-info-row">
+                <strong>Address</strong>
+                <span id="userAddress">...</span>
+            </div>
+            <div class="user-info-row">
+                <strong>Member Since</strong>
+                <span id="userSince">...</span>
+            </div>
+            <button class="btn btn-outline" style="width:100%; margin-top:20px;"
+                onclick="switchSection('settings')">Edit Profile</button>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main>
+
+            <div id="mainDashboard">
+                <!-- 1. Services Booked -->
+                <div class="dashboard-section">
+                    <h2>Services Booked</h2>
+                    <div id="servicesList">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- 2. Properties Uploaded -->
+                <div class="dashboard-section">
+                    <div class="flex justify-between items-center mb-4"
+                        style="border-bottom: 1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px;">
+                        <h2 style="margin:0; border:none; padding:0;">Properties Uploaded</h2>
+                        <button class="btn btn-primary" onclick="openUploadModal()" style="font-size:0.8rem;">+ Upload
+                            New</button>
+                    </div>
+                    <div id="uploadedPropertiesList">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- 2.5 Bookings on My Properties (Incoming) -->
+                <div class="dashboard-section">
+                    <h2>Bookings on My Properties</h2>
+                    <div id="receivedBookingsList">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- 3. Properties Booked -->
+                <div class="dashboard-section">
+                    <h2>Properties Booked</h2>
+                    <div id="bookedPropertiesList">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+
+            <div id="settingsSection" class="dashboard-section" style="display:none;">
+                <h2>Edit Profile</h2>
+                <form id="profileForm" onsubmit="saveProfile(event)">
+                    <div class="user-info-row">
+                        <label>Name</label>
+                        <input type="text" id="editName" required
+                            style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid var(--border-color);">
+                    </div>
+                    <div class="user-info-row">
+                        <label>Phone Number</label>
+                        <input type="number" id="editPhone" required
+                            style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid var(--border-color);">
+                    </div>
+                    <div class="user-info-row">
+                        <label>Address</label>
+                        <textarea id="editAddress" rows="3" required
+                            style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:6px; border:1px solid var(--border-color);"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-outline" onclick="switchSection('dashboard')"
+                        style="margin-left:10px;">Cancel</button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modals (Property Upload & Invoice) Stays Same Logic, just adapting styles if needed -->
+    <!-- Reuse existing modal HTML but ensure IDs match -->
+    <div id="propertyModal" class="modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; z-index:2000;">
+        <div class="modal-content"
+            style="background:#ffffff; padding:30px; border-radius:12px; width:90%; max-width:500px; color:var(--text-color); border:1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+            <h3 class="mb-3" id="modalTitle">Upload Property</h3>
+            <form id="propertyForm">
+                <input type="hidden" name="property_id" id="editPropId">
+                <input type="text" name="title" id="pTitle" placeholder="Title" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;">
+                <input type="number" name="price" id="pPrice" placeholder="Price" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;">
+                <input type="text" name="location" id="pLoc" placeholder="Location" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;">
+                <select name="type" id="pType" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;">
+                    <option value="Apartment" style="color:black;">Apartment</option>
+                    <option value="House" style="color:black;">House</option>
+                    <option value="Villa" style="color:black;">Villa</option>
+                    <option value="Land" style="color:black;">Land</option>
+                    <option value="Commercial" style="color:black;">Commercial</option>
+                </select>
+                <select name="listing_type" id="pListingType" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;">
+                    <option value="sale" style="color:black;">For Sale</option>
+                    <option value="rent" style="color:black;">For Rent</option>
+                </select>
+                <input type="file" name="images[]" multiple accept="image/*"
+                    style="width:100%; margin-bottom:10px; color:white;">
+                <textarea name="description" id="pDesc" rows="3" placeholder="Description" required
+                    style="width:100%; margin-bottom:10px; padding:10px; background:#ffffff; border:1px solid var(--border-color); color:var(--text-dark); border-radius: 6px;"></textarea>
+                <p style="text-align:right; font-weight:bold; color:var(--secondary-color); margin-bottom:10px;">₹ 1000
+                    to be paid</p>
+                <div class="flex justify-end gap-2">
+                    <button type="submit" class="btn btn-primary">Upload & Pay</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('propertyModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; z-index:2100;">
+        <div class="modal-content"
+            style="background:#fff; color:#333; padding:30px; border-radius:12px; width:300px; text-align:center;">
+            <h3 style="margin-bottom:20px; color:#000;">Payment Gateway</h3>
+            <div
+                style="background:#f8f9fa; padding:15px; border:1px dashed #ccc; margin-bottom:20px; border-radius:8px;">
+                <p style="margin:0; font-size:0.9rem; color:#666;">Amount to Pay</p>
+                <h2 style="margin:5px 0; color:#27ae60;">₹ 1,000</h2>
+            </div>
+            <button class="btn btn-primary" onclick="processPayment()" style="width:100%;">Pay Now</button>
+            <button class="btn btn-outline" onclick="closeModal('paymentModal')"
+                style="width:100%; margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div id="invoiceModal" class="modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; z-index:2000;">
+        <div class="modal-content"
+            style="background:#fff; color:#333; padding:25px; border-radius:8px; width:90%; max-width:400px;">
+            <h3 class="mb-3" style="color:#000;">Booking Invoice</h3>
+            <div id="invoiceDetails"></div>
+            <button class="btn btn-primary" style="width:100%; margin-top:15px;"
+                onclick="closeModal('invoiceModal')">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function openUploadModal() {
+            document.getElementById('propertyForm').reset();
+            document.getElementById('editPropId').value = '';
+            document.getElementById('modalTitle').innerText = 'Upload Property';
+            document.getElementById('propertyModal').style.display = 'flex';
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        async function loadProfile() {
+            const pRes = await fetch('../backend/get_profile.php');
+            const pData = await pRes.json();
+            if (pData.status === 'success') {
+                const u = pData.data;
+                document.getElementById('userName').innerText = u.name;
+                document.getElementById('userPhone').innerText = u.phone;
+                document.getElementById('userAddress').innerText = u.address || 'Not Set';
+                document.getElementById('userSince').innerText = u.created_at ? new Date(u.created_at).toLocaleDateString() : 'Unknown';
+
+                // Pre-fill settings form
+                if (document.getElementById('editName')) {
+                    document.getElementById('editName').value = u.name || '';
+                    document.getElementById('editPhone').value = u.phone || '';
+                    document.getElementById('editAddress').value = u.address || '';
+                }
+            }
+        }
+
+        async function loadData() {
+            await loadProfile();
+            await loadReceivedBookings(); // New function call
+
+            // 1. Fetch Bookings (Split into Services vs Properties)
+            const bRes = await fetch('../backend/user_actions.php?action=fetch_bookings');
+            const bData = await bRes.json();
+
+            const servicesContainer = document.getElementById('servicesList');
+            const propBookedContainer = document.getElementById('bookedPropertiesList');
+
+            servicesContainer.innerHTML = '';
+            propBookedContainer.innerHTML = '';
+
+            if (bData.bookings && bData.bookings.length > 0) {
+                bData.bookings.forEach(b => {
+                    const date = new Date(b.booking_date).toLocaleDateString();
+                    // Identify if Service or Property
+                    // Assuming API returns 'property_title' for properties and 'service_category' for services
+                    const isProperty = b.property_title ? true : false;
+
+                    const title = isProperty ? b.property_title : `${b.service_category} Service`;
+                    const subText = isProperty ? `Owner: ${b.provider_name}` : `Provider: ${b.provider_name}`;
+
+                    let statusHtml = '';
+                    let actionHtml = '';
+
+                    if (b.status === 'rejected' || b.status === 'cancelled') {
+                        statusHtml = `<span class="badge" style="background:#e74c3c; cursor:pointer;" onclick="alert('Provider cancelled your booking and rupees 30 will be credited to your account')">Cancelled ⓘ</span>`;
+                    } else if (b.status === 'completed') {
+                        statusHtml = `<span class="badge" style="background:#27ae60;">Completed</span>`;
+                        const total = b.total_amount > 0 ? b.total_amount : (b.service_rate || 0);
+                        actionHtml = `<button class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem;" onclick="viewInvoice('${title}', '${date}', ${total}, ${b.advance_paid})">Invoice</button>`;
+                    } else if (b.status === 'accepted' || b.status === 'confirmed') {
+                        statusHtml = `<span class="badge" style="background:#3498db;">Confirmed</span>`;
+                        if (isProperty) {
+                            actionHtml += `<p style="margin-top:5px; font-size:0.85rem; color:#27ae60; font-weight:bold;">Your booking has been confirmed. Expect a call from owner.</p>`;
+                        }
+                    } else {
+                        statusHtml = `<span class="badge" style="background:#f1c40f;">${b.status}</span>`;
+                    }
+
+                    // --- Review Logic ---
+                    let reviewHtml = '';
+                    if (!isProperty && b.status === 'completed') {
+                        const hasReview = b.review_id ? true : false;
+                        const rating = b.review_rating || 0;
+                        const comment = b.review_comment || '';
+
+                        reviewHtml = `
+                            <div class="review-box" style="margin-top:15px; background:var(--white); padding:15px; border-radius:12px; border:1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                    <h5 style="margin:0; font-size:0.9rem; color:var(--text-dark); font-weight:600;">${hasReview ? 'Your Feedback' : 'Rate Experience'}</h5>
+                                    <div class="star-rating" data-booking="${b.id}" id="stars-${b.id}">
+                                        ${[1, 2, 3, 4, 5].map(s => `
+                                            <i class="${s <= rating ? 'fas' : 'far'} fa-star" 
+                                               onmouseover="highlightStars(${b.id}, ${s})" 
+                                               onmouseout="resetStars(${b.id})"
+                                               onclick="setRating(${b.id}, ${s})" 
+                                               style="color:#f1c40f;" 
+                                               data-value="${s}"></i>`).join('')}
+                                    </div>
+                                </div>
+                                <textarea id="rev-text-${b.id}" placeholder="Write a comment..." 
+                                    style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); font-size:0.85rem; margin-bottom:10px; resize:none;">${comment}</textarea>
+                                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                                    ${hasReview ? `<button class="btn btn-outline" style="padding:4px 12px; font-size:0.75rem; color:#e74c3c; border-color:#e74c3c;" onclick="deleteReview(${b.review_id})">Delete</button>` : ''}
+                                    <button class="btn btn-primary" style="padding:4px 15px; font-size:0.75rem;" onclick="submitReview(${b.id}, ${b.provider_id})">
+                                        ${hasReview ? 'Update' : 'Post Review'}
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const itemHTML = `
+                        <div class="list-item" style="flex-direction:column; align-items:stretch;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                                <div>
+                                    <h4 style="color:var(--text-dark); margin-bottom:5px;">${title}</h4>
+                                    <p style="font-size:0.9rem; color:#ccc;">${subText}</p>
+                                    <p style="font-size:0.8rem; color:var(--secondary-color);">Booked on: ${date}</p>
+                                </div>
+                                <div>
+                                    ${statusHtml}
+                                    ${actionHtml}
+                                </div>
+                            </div>
+                            ${reviewHtml}
+                        </div>
+                    `;
+
+                    if (isProperty) {
+                        propBookedContainer.innerHTML += itemHTML;
+                    } else {
+                        servicesContainer.innerHTML += itemHTML;
+                    }
+                });
+            }
+
+            if (servicesContainer.innerHTML === '') servicesContainer.innerHTML = '<p style="color:#aaa;">No services booked yet.</p>';
+            if (propBookedContainer.innerHTML === '') propBookedContainer.innerHTML = '<p style="color:#aaa;">No properties booked yet.</p>';
+
+            // 2. Fetch Uploaded Properties
+            const prRes = await fetch('../backend/fetch_properties.php');
+            const prData = await prRes.json();
+            const uploadedContainer = document.getElementById('uploadedPropertiesList');
+            uploadedContainer.innerHTML = '';
+
+            if (prData.properties && prData.properties.length > 0) {
+                prData.properties.forEach(p => {
+                    const img = p.images && p.images.length > 0 ? (p.images[0].startsWith('http') ? p.images[0] : '../backend/' + p.images[0]) : 'https://via.placeholder.com/150';
+                    uploadedContainer.innerHTML += `
+                        <div class="list-item">
+                            <div class="flex items-center" style="gap:15px;">
+                                <img src="${img}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
+                                <div>
+                                    <h4 style="color:var(--text-dark); margin-bottom:5px;">
+                                        ${p.title} 
+                                        <span class="badge" style="background:${p.listing_type === 'rent' ? '#e8f5e9' : '#fff3e0'}; color:${p.listing_type === 'rent' ? '#2e7d32' : '#ef6c00'}; border:none; font-size:0.7rem; padding: 2px 6px;">For ${p.listing_type === 'rent' ? 'Rent' : 'Sale'}</span>
+                                        <span class="badge" style="background:${p.status === 'accepted' ? '#27ae60' : '#e74c3c'}; color:white; font-size:0.7rem; padding: 2px 6px; margin-left:5px;">Paid</span>
+                                    </h4>
+                                    <p style="font-size:0.9rem; color:#ccc;">${p.location}</p>
+                                    <p style="font-size:0.8rem; color:var(--secondary-color);">₹ ${parseInt(p.price).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-secondary" style="padding:5px 10px; font-size:0.8rem; margin-right:5px;" onclick='openEditModal(${JSON.stringify(p)})'>Edit</button>
+                                <button class="btn btn-outline" style="padding:5px 10px; font-size:0.8rem; color:#e74c3c; border-color:#e74c3c;" onclick="deleteProperty(${p.id})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                uploadedContainer.innerHTML = '<p style="color:#aaa;">You haven\'t uploaded any properties.</p>';
+            }
+        }
+
+        function getStatusColor(s) {
+            if (s == 'pending') return '#f1c40f';
+            if (s == 'accepted' || s == 'confirmed') return '#3498db';
+            if (s == 'completed') return '#27ae60';
+            return '#e74c3c';
+        }
+
+        function viewInvoice(title, date, total, adv) {
+            const el = document.getElementById('invoiceDetails');
+            el.innerHTML = `
+                <p><strong>Item:</strong> ${title}</p>
+                <p><strong>Date:</strong> ${date}</p>
+                <hr style="margin:10px 0;">
+                <div class="flex justify-between"><span>Advance Paid:</span> <span>₹ ${adv}</span></div>
+                <div class="flex justify-between"><span>Balance:</span> <span>₹ ${total - adv}</span></div>
+                <hr style="margin:10px 0;">
+                <div class="flex justify-between" style="font-weight:bold; font-size:1.1rem;"><span>Total:</span> <span>₹ ${total}</span></div>
+            `;
+            document.getElementById('invoiceModal').style.display = 'flex';
+        }
+
+        function deleteProperty(id) {
+            if (confirm("Are you sure you want to delete this property? It will be removed from view.")) {
+                const fd = new FormData(); fd.append('property_id', id); fd.append('action', 'delete_property');
+                fetch('../backend/user_actions.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+                    alert(d.message); loadData();
+                });
+            }
+        }
+
+        function openEditModal(p) {
+            document.getElementById('modalTitle').innerText = 'Edit Property';
+            document.getElementById('editPropId').value = p.id;
+            document.getElementById('pTitle').value = p.title;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pLoc').value = p.location;
+            document.getElementById('pType').value = p.type;
+            document.getElementById('pListingType').value = p.listing_type || 'sale';
+            document.getElementById('pDesc').value = p.description;
+            document.getElementById('propertyModal').style.display = 'flex';
+        }
+
+        document.getElementById('propertyForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('editPropId').value;
+            const fileInput = this.querySelector('input[type="file"]');
+            const fileCount = fileInput.files.length;
+
+            // Payment Flow for New Properties
+            if (!id && !this.dataset.paymentDone) {
+                if (confirm("Amount to be paid: ₹ 1000")) {
+                    document.getElementById('paymentModal').style.display = 'flex';
+                }
+                return;
+            }
+
+            // Client-Side Validation for New Properties
+            if (!id && (fileCount < 3 || fileCount > 5)) {
+                alert("Please select between 3 and 5 images for your property.");
+                return;
+            }
+
+            // Clear flag
+            if (!id) delete this.dataset.paymentDone;
+
+            const fd = new FormData(this);
+            try {
+                const res = await fetch('../backend/property_upload.php', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeModal('propertyModal');
+                    loadData();
+                    this.reset();
+                } else {
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Upload failed.");
+            }
+        });
+
+        //profile edit 
+
+        function switchSection(sec) {
+            const main = document.getElementById('mainDashboard');
+            const settings = document.getElementById('settingsSection');
+            if (sec === 'settings') {
+                main.style.display = 'none';
+                settings.style.display = 'block';
+            } else {
+                main.style.display = 'block';
+                settings.style.display = 'none';
+            }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const name = document.getElementById('editName').value;
+            const phone = document.getElementById('editPhone').value;
+            const address = document.getElementById('editAddress').value;
+
+            const fd = new FormData();
+            fd.append('action', 'update_profile');
+            fd.append('name', name);
+            fd.append('phone', phone);
+            fd.append('address', address);
+
+            try {
+                const res = await fetch('../backend/user_actions.php', { method: 'POST', body: fd });
+                const d = await res.json();
+                if (d.status === 'success') {
+                    alert('Profile Updated Successfully');
+                    loadProfile();
+                    switchSection('dashboard');
+                } else {
+                    alert(d.message);
+                }
+            } catch (e) { console.error(e); alert('Error updating profile'); }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadData);
+        // --- Review System Logic ---
+        function setRating(bookingId, value) {
+            window['rating_' + bookingId] = value;
+            renderStarsState(bookingId, value);
+        }
+
+        function highlightStars(bookingId, value) {
+            renderStarsState(bookingId, value);
+        }
+
+        function resetStars(bookingId) {
+            const saved = window['rating_' + bookingId] || 0;
+            renderStarsState(bookingId, saved);
+        }
+
+        function renderStarsState(bookingId, value) {
+            const container = document.getElementById(`stars-${bookingId}`);
+            if (!container) return;
+            const stars = container.querySelectorAll('i');
+            stars.forEach((s, idx) => {
+                if (idx < value) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        }
+
+        async function submitReview(bookingId, providerId) {
+            const rating = window['rating_' + bookingId] || document.querySelectorAll(`#stars-${bookingId} i.fas`).length;
+            const comment = document.getElementById(`rev-text-${bookingId}`).value;
+
+            if (rating === 0) { alert("Please select a star rating."); return; }
+
+            const fd = new FormData();
+            fd.append('provider_id', providerId);
+            fd.append('booking_id', bookingId);
+            fd.append('rating', rating);
+            fd.append('comment', comment);
+
+            try {
+                const res = await fetch('../backend/submit_review.php', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Review saved!');
+                    loadData();
+                } else alert(data.message);
+            } catch (err) { console.error(err); }
+        }
+
+        function processPayment() {
+            alert("Paid Successfully");
+            closeModal('paymentModal');
+            const form = document.getElementById('propertyForm');
+            form.dataset.paymentDone = "true";
+            form.requestSubmit();
+        }
+
+        async function deleteReview(reviewId) {
+            if (!confirm('Are you sure you want to delete this review?')) return;
+            const fd = new FormData();
+            fd.append('review_id', reviewId);
+            try {
+                const res = await fetch('../backend/delete_review.php', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Review deleted');
+                    loadData();
+                } else alert(data.message);
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadReceivedBookings() {
+            const res = await fetch('../backend/user_actions.php?action=fetch_received_bookings');
+            const data = await res.json();
+            const container = document.getElementById('receivedBookingsList');
+            if (!container) return; // safety
+            container.innerHTML = '';
+
+            if (data.status === 'success' && data.bookings && data.bookings.length > 0) {
+                data.bookings.forEach(b => {
+                    const date = new Date(b.booking_date).toLocaleDateString();
+                    let actionBtn = '';
+                    let statusBadge = '';
+
+                    // Owner view of the booking
+                    if (b.status === 'pending') {
+                        statusBadge = `<span class="badge" style="background:#f1c40f;">Pending</span>`;
+                        actionBtn = `<button class="btn btn-primary" style="padding:5px 15px; font-size:0.9rem;" onclick="confirmBooking(${b.id})">Confirm Booking</button>`;
+                    } else if (b.status === 'confirmed') {
+                        statusBadge = `<span class="badge" style="background:#27ae60;">Confirmed</span>`;
+                        actionBtn = `<span style="color:#27ae60; font-size:0.9rem;"><i class="fas fa-check-circle"></i> Confirmed</span>`;
+                    } else {
+                        statusBadge = `<span class="badge" style="background:#e74c3c;">${b.status}</span>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="list-item" style="flex-direction:column; align-items:start;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                <div>
+                                    <h4 style="margin:0; color:var(--text-dark);">${b.property_title}</h4>
+                                    <p style="font-size:0.85rem; color:#777; margin:5px 0;">${b.property_location}</p>
+                                </div>
+                                <div>${statusBadge}</div>
+                            </div>
+                            <hr style="width:100%; border:0; border-top:1px solid #eee; margin:10px 0;">
+                            <div style="width:100%; margin-bottom:15px;">
+                                <p style="margin:5px 0; font-size:0.9rem;"><strong>Booked By:</strong> ${b.booker_name}</p>
+                                <p style="margin:5px 0; font-size:0.9rem;"><strong>Contact:</strong> ${b.booker_phone} / ${b.booker_email || 'N/A'}</p>
+                                <p style="margin:5px 0; font-size:0.9rem;"><strong>Date:</strong> ${date}</p>
+                                <p style="margin:5px 0; font-size:0.9rem;"><strong>Advance Paid:</strong> ₹ ${b.advance_paid}</p>
+                            </div>
+                            <div style="width:100%; display:flex; justify-content:flex-end;">
+                                ${actionBtn}
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                container.innerHTML = '<p style="color:#aaa;">No bookings received yet.</p>';
+            }
+        }
+
+        async function confirmBooking(id) {
+            if (!confirm("Are you sure you want to confirm this booking?")) return;
+
+            const fd = new FormData();
+            fd.append('action', 'confirm_booking');
+            fd.append('booking_id', id);
+
+            try {
+                const res = await fetch('../backend/user_actions.php', { method: 'POST', body: fd });
+                const d = await res.json();
+                if (d.status === 'success') {
+                    alert(d.message);
+                    loadReceivedBookings();
+                } else {
+                    alert(d.message);
+                }
+            } catch (e) { console.error(e); alert("Error confirming booking"); }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.6">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="js/auth_guard.js?v=1.1"></script>
+    <style>
+        .property-img-container {
+            width: 100%;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            background: #eee;
+        }
+
+        .property-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .property-img-container:hover img {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="container flex justify-between items-center">
+            <a href="index.html" class="logo">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#a28089" stroke-width="2" />
+                    <rect x="22" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="22" y="46" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="46" width="6" height="6" fill="#4a383d" />
+                </svg>
+                Zenvia
+            </a>
+
+            <button class="mobile-menu-btn" style="color: var(--text-color);"
+                aria-label="Toggle navigation menu">☰</button>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="listings.html" class="active">Properties</a>
+                <a href="services.html">Services</a>
+                <a href="about.html">About Us</a>
+                <span id="nav-auth-links">
+                    <a href="login.html" id="navLoginBtn">Login</a>
+                </span>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="mb-4">Explore Properties</h2>
+
+            <!-- Search Bar Row -->
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="Search by title, description, or type...">
+                <button class="btn btn-primary" onclick="applyFilters()">Search</button>
+            </div>
+
+            <!-- Place, Price & Type Row -->
+            <div class="filter-bar">
+                <input type="text" id="locationFilter" placeholder="Place (e.g. Mumbai, Goa)">
+                <input type="number" id="priceFilter" placeholder="Max Price (₹)">
+                <select id="propertyTypeFilter"
+                    style="padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-family: inherit; color: var(--text-color); background: #fff;">
+                    <option value="all">Any Property Type</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="House">House</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Land">Land</option>
+                    <option value="Commercial">Commercial</option>
+                </select>
+                <select id="listingTypeFilter"
+                    style="padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-family: inherit; color: var(--text-color); background: #fff;">
+                    <option value="all">All Types</option>
+                    <option value="sale">For Sale</option>
+                    <option value="rent">For Rent</option>
+                </select>
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+            </div>
+
+            <div class="grid grid-3" id="propertiesList"></div>
+        </div>
+    </section>
+
+    <script src="js/scripts.js"></script>
+    <script>
+        let allProperties = [];
+
+        async function loadProperties() {
+            try {
+                const res = await fetch('../backend/fetch_all_properties.php');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    allProperties = data.properties;
+                    renderProperties(allProperties);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderProperties(list) {
+            const container = document.getElementById('propertiesList');
+            container.innerHTML = '';
+
+            if (!list || list.length === 0) {
+                container.innerHTML = '<p>No properties found matching your criteria.</p>';
+                return;
+            }
+
+            list.forEach(prop => {
+                const img = prop.image_url ? '../backend/' + prop.image_url : 'https://via.placeholder.com/800x600';
+                const displayImg = prop.image_url && prop.image_url.startsWith('http') ? prop.image_url : img;
+
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="property-img-container"><img src="${displayImg}" onerror="this.src='https://via.placeholder.com/400'"></div>
+                        <div style="padding: 16px;">
+                            <div class="flex justify-between items-center mb-2">
+                                <div style="display:flex; gap:5px; align-items:center;">
+                                    <span class="badge" style="font-size: 0.75rem; background: var(--accent-color); color: var(--secondary-color); border: 1px solid var(--border-color);">${prop.type}</span>
+                                    <span class="badge" style="font-size: 0.75rem; background: ${prop.listing_type === 'rent' ? '#e8f5e9' : '#fff3e0'}; color: ${prop.listing_type === 'rent' ? '#2e7d32' : '#ef6c00'}; border:none;">For ${prop.listing_type === 'rent' ? 'Rent' : 'Sale'}</span>
+                                </div>
+                                <span style="font-weight: 700; color: var(--secondary-color);">₹ ${parseInt(prop.price).toLocaleString()}</span>
+                            </div>
+                            <h3 style="margin-bottom: 8px;">${prop.title}</h3>
+                            <p style="font-size:0.9rem; color: #444; margin-bottom: 8px;"><i class="fas fa-map-marker-alt" style="color: var(--primary-color);"></i> ${prop.location}</p>
+                            <a href="property-detail.html?id=${prop.id}" class="btn btn-primary" style="display:block; text-align:center;">View Details</a>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const locationTerm = document.getElementById('locationFilter').value.toLowerCase();
+            const maxPrice = parseFloat(document.getElementById('priceFilter').value);
+            const listingType = document.getElementById('listingTypeFilter').value;
+            const propertyType = document.getElementById('propertyTypeFilter').value;
+
+            const filtered = allProperties.filter(prop => {
+                const matchesSearch = !searchTerm ||
+                    prop.title.toLowerCase().includes(searchTerm) ||
+                    prop.description.toLowerCase().includes(searchTerm) ||
+                    prop.type.toLowerCase().includes(searchTerm);
+
+                const matchesLocation = !locationTerm ||
+                    prop.location.toLowerCase().includes(locationTerm);
+
+                const matchesPrice = isNaN(maxPrice) ||
+                    parseFloat(prop.price) <= maxPrice;
+
+                const matchesListingType = listingType === 'all' ||
+                    prop.listing_type === listingType;
+
+                const matchesPropertyType = propertyType === 'all' ||
+                    prop.type === propertyType;
+
+                return matchesSearch && matchesLocation && matchesPrice && matchesListingType && matchesPropertyType;
+            });
+
+            renderProperties(filtered);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProperties);
+    </script>
+</body>
+
+</html>

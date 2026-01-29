@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Zenvia</title>
+    <link rel="stylesheet" href="css/styles.css?v=1.2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-color);
+            padding: var(--spacing-md);
+        }
+
+        .auth-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Minimal & Aesthetic Inputs (High Contrast) */
+        input,
+        textarea {
+            background: #ffffff !important;
+            border: 1px solid transparent !important;
+            color: #1a202c !important;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #a0aec0;
+        }
+
+        label {
+            color: var(--text-color);
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        h2 {
+            color: var(--secondary-color) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="index.html" class="logo text-center mb-4"
+                style="display:flex; justify-content:center; align-items:center; gap:10px;">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 30L32 14L52 30V54H12V30Z" fill="#a28089" stroke="#a28089" stroke-width="2" />
+                    <rect x="22" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="36" width="6" height="6" fill="#4a383d" />
+                    <rect x="22" y="46" width="6" height="6" fill="#4a383d" />
+                    <rect x="36" y="46" width="6" height="6" fill="#4a383d" />
+                </svg>
+                Zenvia
+            </a>
+            <!-- Provider Link -->
+            <div class="text-center mb-4" style="padding-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                <span class="badge"
+                    style="background: rgba(255,255,255,0.1); color: var(--secondary-color); font-size: 0.9rem; padding: 6px 12px;">Are
+                    you a
+                    professional?</span>
+                <div style="margin-top: 8px;">
+                    <a href="signup-provider.html"
+                        style="color: var(--secondary-color); font-weight: 700; text-decoration: underline;">Register as
+                        a
+                        Service Provider</a>
+                </div>
+            </div>
+
+            <h2 class="text-center mb-4" style="color: var(--white);">Create Account</h2>
+
+            <form id="signupForm">
+                <input type="hidden" name="action" value="signup">
+                <input type="hidden" name="role" value="user">
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Full Name</label>
+                        <input type="text" name="name" placeholder="John Doe" required>
+                    </div>
+                    <div>
+                        
+                        <div>
+                            <label style="display:block; font-weight:600; margin-bottom:4px">Phone Number</label>
+                            <input type="tel" name="phone" placeholder="+91 XXXXX XXXXX" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="mb-2">
+                    <label style="display:block; font-weight:600; margin-bottom:4px">Address</label>
+                    <textarea name="address" placeholder="Enter your full address"
+                        style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="grid grid-2" style="gap: 16px; margin-bottom: 24px;">
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Password</label>
+                        <input type="password" name="password" placeholder="Create password" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; margin-bottom:4px">Confirm Password</label>
+                        <input type="password" placeholder="Confirm password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-bottom: 16px;">Register</button>
+
+                <div class="text-center" style="font-size: 0.9rem;">
+                    Already have an account? <a href="login.html"
+                        style="color: var(--secondary-color); font-weight: 600;">Login</a>
+                </div>
+
+                <!-- Admin Link -->
+
+            </form>
+        </div>
+    </div>
+    </div>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('../backend/auth.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                alert('Registration successful! Please login.');
+                window.location.href = 'login.html';
+            } else {
+                alert(result.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
